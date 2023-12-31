@@ -18,6 +18,8 @@ public class MarketItem
 
 	// https://youtrack.jetbrains.com/issue/RSRP-468572
 	// ReSharper disable InconsistentNaming
+	public int LastLowPrice { get; set; }
+	public int Low24hPrice { get; set; }
 	public int Avg24hPrice { get; set; }
 	// ReSharper restore InconsistentNaming
 
