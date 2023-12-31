@@ -60,6 +60,12 @@ public class Item
 	[JsonProperty("types")]
 	public List<ItemType?> Types { get; set; }
 
+	[JsonProperty("low24hPrice")]
+	public int? Low24HPrice { get; set; }
+
+	[JsonProperty("lastLowPrice")]
+	public int? LastLowPrice { get; set; }
+
 	[JsonProperty("avg24hPrice")]
 	public int? Avg24HPrice { get; set; }
 
@@ -90,17 +96,11 @@ public class Item
 	[JsonProperty("link")]
 	public string Link { get; set; }
 
-	[JsonProperty("lastLowPrice")]
-	public int? LastLowPrice { get; set; }
-
 	[JsonProperty("changeLast48h")]
 	public double? ChangeLast48H { get; set; }
 
 	[JsonProperty("changeLast48hPercent")]
 	public double? ChangeLast48HPercent { get; set; }
-
-	[JsonProperty("low24hPrice")]
-	public int? Low24HPrice { get; set; }
 
 	[JsonProperty("high24hPrice")]
 	public int? High24HPrice { get; set; }
