@@ -19,6 +19,8 @@ internal class SettingsVM : INotifyPropertyChanged
 	public int ToolTipMilli { get; set; }
 
 	public bool ShowName { get; set; }
+	public bool ShowLastPrice { get; set; }
+	public bool ShowLowDayPrice { get; set; }
 	public bool ShowAvgDayPrice { get; set; }
 	public bool ShowPricePerSlot { get; set; }
 	public bool ShowTraderPrice { get; set; }

@@ -22,6 +22,8 @@ public abstract class ItemScan
 	public string? TarkovDevLink { get; set; }
 
 	// Item Information
+	public int LastLowPrice { get; set; } = 0;
+	public int Low24hPrice { get; set; } = 0;
 	public int Avg24hPrice { get; set; } = 0;
 	public int PricePerSlot { get; set; } = 0;
 	public string TraderName { get; set; } = "";
