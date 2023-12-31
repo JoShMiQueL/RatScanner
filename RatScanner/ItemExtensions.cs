@@ -89,6 +89,34 @@ public static class ItemExtensions
 		return marketItem ?? new MarketItem(item.Id);
 	}
 
+	public static Price GetLastLowMarketPrice(this Item item)
+	{
+		var total = item.GetMarketItem().LastLowPrice;
+		if (item is CompoundItem itemC) total += itemC.Slots.Sum(slot => slot.ContainedItem?.GetLastLowMarketPrice().Value ?? 0);
+		return new Price(total);
+	}
+
+	public static Price GetLastLowMarketPricePerSlot(this Item item)
+	{
+		var price = GetLastLowMarketPrice(item).Value;
+		var size = item.GetSlotSize();
+		return new Price(price / (size.width * size.height));
+	}
+
+	public static Price GetLow24hMarketPrice(this Item item)
+	{
+		var total = item.GetMarketItem().Low24hPrice;
+		if (item is CompoundItem itemC) total += itemC.Slots.Sum(slot => slot.ContainedItem?.GetLow24hMarketPrice().Value ?? 0);
+		return new Price(total);
+	}
+
+	public static Price GetLow24hMarketPricePerSlot(this Item item)
+	{
+		var price = GetLow24hMarketPrice(item).Value;
+		var size = item.GetSlotSize();
+		return new Price(price / (size.width * size.height));
+	}
+
 	public static Price GetAvg24hMarketPrice(this Item item)
 	{
 		var total = item.GetMarketItem().Avg24hPrice;
@@ -113,10 +141,12 @@ public static class ItemExtensions
 		return new Price(total);
 	}
 
-	public static Price GetFleaTaxPrice(this Item item, int quantity = 1)
+	public static Price GetFleaTaxPrice(this Item item, int quantity = 1, MarketUpdateRate updateRate = MarketUpdateRate.Avg24H)
 	{
 		int Vo = item.GetMarketItem().BasePrice;
 		int Vr = item.GetAvg24hMarketPrice().Value;
+		if (updateRate == MarketUpdateRate.Last) Vr = item.GetLastLowMarketPrice().Value;
+		if (updateRate == MarketUpdateRate.Low24H) Vr = item.GetLow24hMarketPrice().Value;
 
 		double Po;
 		double Pr;
@@ -139,8 +169,17 @@ public static class ItemExtensions
 		return new Price(fee);
 	}
 
-	public static Price GetFleaVsTraderProfit(this Item item)
+	public enum MarketUpdateRate
 	{
+		Last,
+		Low24H,
+		Avg24H
+	}
+
+	public static Price GetFleaVsTraderProfit(this Item item, MarketUpdateRate updateRate = MarketUpdateRate.Avg24H)
+	{
+		if (updateRate == MarketUpdateRate.Last) return new Price((item.GetLastLowMarketPrice().Value - item.GetFleaTaxPrice(1, MarketUpdateRate.Last).Value) - item.GetTraderPrice(item.GetBestTrader().traderId).Value);
+		if (updateRate == MarketUpdateRate.Low24H) return new Price((item.GetLow24hMarketPrice().Value - item.GetFleaTaxPrice(1, MarketUpdateRate.Low24H).Value) - item.GetTraderPrice(item.GetBestTrader().traderId).Value);
 		return new Price((item.GetAvg24hMarketPrice().Value - item.GetFleaTaxPrice().Value) - item.GetTraderPrice(item.GetBestTrader().traderId).Value);
 	}
 
@@ -149,8 +188,10 @@ public static class ItemExtensions
 		return new Price(item.GetFleaVsTraderProfit().Value / (item.Width * item.Height));
 	}
 
-	public static string GetBestProfitableMethod(this Item item, Scan.ItemScan itemScan)
+	public static string GetBestProfitableMethod(this Item item, Scan.ItemScan itemScan, MarketUpdateRate updateRate = MarketUpdateRate.Avg24H)
 	{
+		if (updateRate == MarketUpdateRate.Last) return (item.GetLastLowMarketPrice().Value - item.GetFleaTaxPrice(1, MarketUpdateRate.Last).Value) > item.GetBestTrader().price.Value ? "Flea" : itemScan.TraderName;
+		if (updateRate == MarketUpdateRate.Low24H) return (item.GetLow24hMarketPrice().Value - item.GetFleaTaxPrice(1, MarketUpdateRate.Low24H).Value) > item.GetBestTrader().price.Value ? "Flea" : itemScan.TraderName;
 		return (item.GetAvg24hMarketPrice().Value - item.GetFleaTaxPrice().Value) > item.GetBestTrader().price.Value ? "Flea" : itemScan.TraderName;
 	}
 
