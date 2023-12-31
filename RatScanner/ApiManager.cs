@@ -25,7 +25,7 @@ public static class ApiManager
 	private static readonly Dictionary<ResourceType, string> ResCache = new();
 
 	// Official RatScanner API URL
-	private const string BaseUrl = "https://api.ratscanner.com/v3";
+	private const string BaseUrl = "http://localhost:2121";
 
 	public static MarketItem[] GetMarketDB()
 	{
